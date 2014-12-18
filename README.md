@@ -1,12 +1,12 @@
 nyfiken
 =======
-Nyfiken means curious in Swedish. Nyfikend is a daemon which will periodically check for updates on a list of URLs and send a notification to the user when it happens. Nyfikenc is client which interacts with the daemon.
+Nyfiken means curious in Swedish. Nyfikend is a daemon which periodically checks for updates on a list of URLs and notifies the user of changes. Nyfikenc is a client which interacts with the daemon.
 
 Installation
 ------------
-    go install github.com/karlek/nyfiken/cmd/nyfikend
+    go get github.com/karlek/nyfiken/cmd/nyfikend
     mkdir ~/.config/nyfiken
-	mv $GOPATH/src/github.com/karlek/nyfiken/config.ini $GOPATH/src/github.com/karlek/nyfiken/pages.ini ~/.config/nyfiken
+    cp $GOPATH/src/github.com/karlek/nyfiken/config.ini $GOPATH/src/github.com/karlek/nyfiken/pages.ini ~/.config/nyfiken
 
 Security
 --------
@@ -24,21 +24,21 @@ Nyfiken(c/d) communicates on port `5239` by default.
 
 Nyfikenc Usage
 --------------
-	$ nyfikenc
-	Sorry, no updates :(
-	$ nyfikenc -f
-	Pages will be checked immediately by your demand.
-	$ nyfikenc
-	http://example.org/
-	http...
-	$ nyfikenc -r
-	Opening all updates with: /usr/bin/browser
-	$ nyfikenc -c
-	Updates list has been cleared!
+    $ nyfikenc
+    Sorry, no updates :(
+    $ nyfikenc -f
+    Pages will be checked immediately by your demand.
+    $ nyfikenc
+    http://example.org/
+    http...
+    $ nyfikenc -r
+    Opening all updates with: /usr/bin/browser
+    $ nyfikenc -c
+    Updates list has been cleared!
 
 API documentation
 -----------------
-http://go.pkgdoc.org/github.com/karlek/nyfiken
+http://godoc.org/github.com/karlek/nyfiken
 
 Public domain
 -------------
