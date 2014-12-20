@@ -1,3 +1,6 @@
+// NOTE: Very clean package. Well documented, with good choice of names and a
+// simple API.
+
 // Package strip containts functions to remove false positives from comparisons
 // of new and last scrape.
 //
@@ -65,6 +68,12 @@ func Scripts(doc *html.Node) {
 	}
 	f(doc)
 }
+
+// NOTE: There is no need to pass a reference to newSel as the closure f can see
+// all local variables declared in HTML. If f was executed concurrently we would
+// need to close around the variable by passing it as a parameter, but since
+// this is not the case the function implementation can be simplified by
+// removing the newSel parameter.
 
 // HTML removes HTML tags from an html.Node and leaves the text.
 func HTML(doc *html.Node) {
