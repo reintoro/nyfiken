@@ -13,6 +13,9 @@ import (
 	"strings"
 	"unicode"
 
+	// NOTE: Would it be possible to avoid this dependency on settings? If so
+	// strip would function as a self-contained package and could be used by
+	// other projects.
 	"github.com/karlek/nyfiken/settings"
 	"golang.org/x/net/html"
 )
@@ -90,7 +93,11 @@ func HTML(doc *html.Node) {
 	}
 	f(doc, &newSel)
 
-	/// Check for errors
+	// NOTE: Use TODO instead of "///" for future work. I have also been using
+	// "///" for some time as geany differentiated it from "//" by syntax
+	// highlighting, but TODO is conventional in Go and recognized by godoc.
+
+	// TODO(karlek): Check for errors
 	stringNode, _ := html.Parse(strings.NewReader(newSel))
 	*doc = *stringNode
 }
