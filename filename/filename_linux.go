@@ -1,3 +1,7 @@
+// NOTE: Should the "Linux blacklisted characters" comment be part of the godoc
+// documentation? If not add a newline before the package line, and if so add an
+// equivalent comment to filename_windows.go
+
 // Linux blacklisted characters:
 //
 //		`/`

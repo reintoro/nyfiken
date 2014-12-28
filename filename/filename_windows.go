@@ -50,12 +50,15 @@ func Encode(unencoded string) (clean string, err error) {
 	for _, chr := range unencoded {
 		switch chr {
 		case IsRestricted(r):
+			// NOTE: Make use of url.QueryEscape?
 			clean += `%` + fmt.Sprintf("%x", r)
 		default:
 			clean += string(r)
 		}
 	}
 
+	// NOTE: Use consistent names in both filename_linux and filename_windows.
+	// E.g. use either IsHostile or IsAllowed.
 	err = IsAllowed(clean)
 	if err != nil {
 		return errutil.Err(err)
@@ -123,6 +126,11 @@ func IsRestricted(r rune) bool {
 		return false
 	}
 }
+
+// NOTE: IsLastSpaceOrPeriod seems link a helper function for the filename
+// package and should not be exported. Only export the minimal API which clients
+// are likely to use; such as "filename.IsValid(path string) bool" or something
+// similar.
 
 // Filenames are not allowed to end in ` ` (%20 i.e space) or `.`
 // (%2e i.e period).
