@@ -52,8 +52,13 @@ func errWrapTakeInput(conn net.Conn, outerErrChan chan error) {
 // Wait for input and send output to client.
 func takeInput(conn net.Conn) (err error) {
 	for {
+		// NOTE: A new reader is created on each iteration of the loop. While
+		// functionally correct it is wasteful. Consider placing the
+		// bufioutil.NewReader outside of the loop, or even better consider using
+		// bufio.NewScanner to read lines.
 		query, err := bufioutil.NewReader(conn).ReadLine()
 		if err != nil {
+			// NOTE: Seems like a hack. Why not check against io.EOF?
 			if err.Error() == "EOF" {
 				break
 			}
