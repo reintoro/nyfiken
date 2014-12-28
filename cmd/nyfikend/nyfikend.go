@@ -59,9 +59,11 @@ func nyfikend() (err error) {
 		return errutil.Err(err)
 	}
 
+	// NOTE: I love the fact that you are monitoring file system events to check
+	// when the config is updated! This makes nyfikend a friendly daemon :)
+
 	// Change settings files only when config files are modified.
 	watcher, err := fsnotify.NewWatcher()
-
 	if err != nil {
 		return errutil.Err(err)
 	}
@@ -132,6 +134,9 @@ func watchConfig(watcher *fsnotify.Watcher) (err error) {
 						return errutil.Err(err)
 					}
 				}
+				// NOTE: The global pages variable will not be updated by the
+				// watcher. Is this a bug? If so, use use `=` instead of `:=`.
+
 				// Retrieve an array of pages from INI file.
 				pages, err := ini.ReadPages(settings.PagesPath)
 				if err != nil {
