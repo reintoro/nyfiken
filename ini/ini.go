@@ -147,20 +147,25 @@ func parseSettings(config ini.Section) (err error) {
 	// Get time setting from INI.
 	// If interval setting wasn't found, default value is 1 minute
 	intervalStr := config.S(fieldInterval, settings.DefaultInterval.String())
+	// NOTE: As settings.Global is used several times you could make use of a
+	// local pointer to it, thus making the lines shorted and more readable. I've
+	// included this change in parseSettings and parseMail but if it seems ugly
+	// to you, just revert it.
+	global := &settings.Global
 	// Parse string to duration.
-	settings.Global.Interval, err = time.ParseDuration(intervalStr)
+	global.Interval, err = time.ParseDuration(intervalStr)
 	if err != nil {
 		return errutil.Err(err)
 	}
 
 	// Set global file permissions.
-	settings.Global.FilePerms = os.FileMode(config.I(fieldFilePerms, int(settings.DefaultFilePerms)))
+	global.FilePerms = os.FileMode(config.I(fieldFilePerms, int(settings.DefaultFilePerms)))
 
 	// Set port number.
-	settings.Global.PortNum = config.S(fieldPortNum, settings.DefaultPortNum)
+	global.PortNum = config.S(fieldPortNum, settings.DefaultPortNum)
 
 	// Set browser path.
-	settings.Global.Browser = config.S(fieldBrowser, "")
+	global.Browser = config.S(fieldBrowser, "")
 
 	return nil
 }
@@ -174,34 +179,35 @@ func parseMail(mail ini.Section) (err error) {
 	}
 
 	// Set global sender mail.
-	settings.Global.SenderMail.Address = mail.S(fieldSendMail, "")
-	if settings.Global.SenderMail.Address == "" {
+	global := &settings.Global
+	global.SenderMail.Address = mail.S(fieldSendMail, "")
+	if global.SenderMail.Address == "" {
 		return errutil.NewNoPosf(errMailAddressNotFound)
-	} else if !strings.Contains(settings.Global.SenderMail.Address, "@") {
-		return errutil.NewNoPosf(errInvalidMailAddress, settings.Global.SenderMail.Address)
+	} else if !strings.Contains(global.SenderMail.Address, "@") {
+		return errutil.NewNoPosf(errInvalidMailAddress, global.SenderMail.Address)
 	}
 
 	// Set global sender mail password.
-	settings.Global.SenderMail.Password = mail.S(fieldSendPass, "")
+	global.SenderMail.Password = mail.S(fieldSendPass, "")
 
 	// Set global sender authorization server.
-	settings.Global.SenderMail.AuthServer = mail.S(fieldSendAuthServer, "")
-	if settings.Global.SenderMail.AuthServer == "" {
+	global.SenderMail.AuthServer = mail.S(fieldSendAuthServer, "")
+	if global.SenderMail.AuthServer == "" {
 		return errutil.NewNoPosf(errMailAuthServerNotFound)
 	}
 
 	// Set global sender mail outgoing server.
-	settings.Global.SenderMail.OutServer = mail.S(fieldSendOutServer, "")
-	if settings.Global.SenderMail.OutServer == "" {
+	global.SenderMail.OutServer = mail.S(fieldSendOutServer, "")
+	if global.SenderMail.OutServer == "" {
 		return errutil.NewNoPosf(errMailOutServerNotFound)
 	}
 
 	// Set global receive mail.
-	settings.Global.RecvMail = mail.S(fieldRecvMail, "")
-	if settings.Global.RecvMail == "" {
+	global.RecvMail = mail.S(fieldRecvMail, "")
+	if global.RecvMail == "" {
 		return errutil.NewNoPosf(errMailAddressNotFound)
-	} else if !strings.Contains(settings.Global.RecvMail, "@") {
-		return errutil.NewNoPosf(errInvalidMailAddress, settings.Global.RecvMail)
+	} else if !strings.Contains(global.RecvMail, "@") {
+		return errutil.NewNoPosf(errInvalidMailAddress, global.RecvMail)
 	}
 
 	return nil

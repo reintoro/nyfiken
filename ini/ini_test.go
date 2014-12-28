@@ -96,6 +96,6 @@ func TestReadPages(t *testing.T) {
 	}
 	// NOTE: Once again, reflect.DeepEqual comes to the rescue :)
 	if !reflect.DeepEqual(pages, expected) {
-		t.Fatalf("pages differ: expected %v, got %v", expected, pages)
+		t.Fatalf("pages differ: expected %#v, got %#v", expected, pages)
 	}
 }
