@@ -20,6 +20,8 @@ func Send(pageUrl *url.URL, receivingMail string, body string) (err error) {
 		settings.Global.SenderMail.AuthServer,
 	)
 
+	// NOTE: The mail contains closing body and html tags, but no opening tags.
+
 	// Connect to the server, authenticate, set the sender and recipient,
 	// and send the email all in one step.
 	var msg = `From: ` + settings.Global.SenderMail.Address + `
