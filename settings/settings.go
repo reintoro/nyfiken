@@ -37,6 +37,9 @@ const (
 	DefaultPortNum = ":5239"
 )
 
+// NOTE: Clean use of variable declaration grouping. A single doc comment was
+// sufficient as all paths are declared in a group.
+
 // Paths to nyfiken files.
 var (
 	NyfikenRoot    string
@@ -51,8 +54,12 @@ var (
 )
 
 var (
+	// NOTE: Global variables may be initialized using general expressions.
+	// Therefore `Updates = make(map[string]bool)` is not required in the
+	// initialize function.
+
 	// Updates is a map of all pages which have been updated.
-	Updates map[string]bool
+	Updates = make(map[string]bool)
 
 	// Settings which will be used unless overwritten by site-specific settings.
 	Global = Prog{
@@ -64,6 +71,8 @@ var (
 	// When Verbose is true, enable verbose output.
 	Verbose bool
 )
+
+// NOTE: Love the negexp name :)
 
 // Page is a collection of specialized settings used to eliminate
 // false-positives. Page settings override program global settings.
@@ -88,6 +97,12 @@ type Prog struct {
 	PortNum    string        // On which port should the nyfikenc/d communication take place.
 	Browser    string        // The path to the browser to open updates in.
 
+	// NOTE: I feel uneasy about storing the password in plaintext in the config.
+	// Would it be possible to avoid this somehow, maybe using oauth or
+	// something? As it is only the password of the sending email address, maybe
+	// we could create a "nyfikenbot@gmail.com" or something and use it only for
+	// this purpose.
+
 	// Information about the mail address to send updates.
 	SenderMail struct {
 		Address    string // Mail address of the sending mail.
@@ -106,8 +121,6 @@ func init() {
 }
 
 func initialize() (err error) {
-	Updates = make(map[string]bool)
-
 	// Will set nyfiken root differently depending on operating system.
 	setNyfikenRoot()
 	ConfigPath = NyfikenRoot + "/config.ini"
@@ -125,6 +138,12 @@ func initialize() (err error) {
 	if err != nil {
 		return errutil.Err(err)
 	}
+
+	// NOTE: Generally checking for file or directory existence is discouraged as
+	// it will introduce race conditions. In this producing such a race is not
+	// practical, as multiple instances of nyfikend would have to be started
+	// simultaneously; and in the case of an actual race the only thing that
+	// would happen is that once instance of nyfikend would return an error.
 
 	// Create a nyfiken config folder if it doesn't exist.
 	found, err := osutil.Exists(NyfikenRoot)
@@ -212,6 +231,9 @@ func SaveUpdates() (err error) {
 	}
 	return nil
 }
+
+// NOTE: Clean use of gob to store and load the updates from previous
+// executions.
 
 // LoadUpdates retrieves saved updates from last execution.
 func LoadUpdates() (err error) {
