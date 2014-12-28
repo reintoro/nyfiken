@@ -23,6 +23,12 @@ const (
 	ErrNodata = 61 // No data available
 )
 
+// NOTE: To group the flags consider using a variable declaration list, e.g.
+//    var (
+//       flagRecheck bool
+//       ...
+//    )
+
 // command-line flags
 var flagRecheck bool
 var flagClearAll bool
@@ -54,6 +60,11 @@ func main() {
 }
 
 func nyfikenc() (err error) {
+	// NOTE: It seems unintuitive that PortNum is not an integer and that it
+	// includes a ":" prefix. Consider changing PortNum to Addr and do like godoc
+	// with the -http flag. E.g. both `godoc -http=:3000` and `godoc
+	// -http=localhost:3000` works.
+
 	// Connect to nyfikend.
 	conn, err := net.Dial("tcp", "localhost"+settings.Global.PortNum)
 	if err != nil {
@@ -66,6 +77,10 @@ func nyfikenc() (err error) {
 		}
 	}
 	bw := bufioutil.NewWriter(conn)
+
+	// NOTE: Why the if-statment wrapper? It seems like
+	// `if flagRecheck || flagClearAll || flagReadAndClearAll || flagReadAll {`
+	// could be removed without loosing any functionality.
 
 	// Command-line flag check
 	if flagRecheck ||
@@ -104,7 +119,7 @@ func nyfikenc() (err error) {
 	}
 
 	for up := range ups {
-		fmt.Printf("%s\n", up)
+		fmt.Println(up)
 	}
 
 	return nil
@@ -160,12 +175,17 @@ func clearAll(bw *bufioutil.Writer, conn net.Conn) (err error) {
 			return errutil.Err(err)
 		}
 
+		// NOTE: The UrlAsFilename method on *page.Page should be factored into a
+		// function which accepts an *url.URL. That was the behaviour can be
+		// implemented once and will stay consistent between implementation if it
+		// is updated in the future.
 		urlAsFilename := u.Host + u.Path + u.RawQuery
 		fname, err := filename.Encode(urlAsFilename)
 		if err != nil {
 			return errutil.Err(err)
 		}
 
+		// NOTE: Consider using filepath.Join.
 		cacheFile, err := os.Open(settings.CacheRoot + fname + ".htm")
 		if err != nil {
 			return errutil.Err(err)
