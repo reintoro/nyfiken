@@ -1,9 +1,9 @@
 package ini
 
 import (
-	"fmt"
 	"net/url"
 	"os"
+	"reflect"
 	"testing"
 	"time"
 
@@ -36,13 +36,12 @@ func TestReadSettings(t *testing.T) {
 
 	err := ReadSettings("ini_test_config.ini")
 	if err != nil {
-		t.Errorf("ReadSettings: %s", err)
+		t.Fatal("ReadSettings:", err)
 	}
 
-	/// "invalid operation: expected != settings.Global (struct containing []string cannot be compared)"
-	/// Need to find a better way to compare slices.
-	/// Ugly solution
-	if fmt.Sprintf("%v", settings.Global) != fmt.Sprintf("%v", expected) {
+	// NOTE: As you already pointed out the fmt solution was ugly although
+	// creative. reflect.DeepEqual can be used instead.
+	if !reflect.DeepEqual(settings.Global, expected) {
 		t.Errorf("output %v != %v", settings.Global, expected)
 	}
 }
@@ -51,11 +50,11 @@ func TestReadSettings(t *testing.T) {
 func TestReadPages(t *testing.T) {
 	reqUrl, err := url.Parse("http://example.org")
 	if err != nil {
-		t.Errorf("url.Parse: %s", err)
+		t.Fatal("url.Parse:", err)
 	}
 	anotherReqUrl, err := url.Parse("http://another.example.org")
 	if err != nil {
-		t.Errorf("url.Parse: %s", err)
+		t.Fatal("url.Parse:", err)
 	}
 
 	expected := []*page.Page{
@@ -84,86 +83,19 @@ func TestReadPages(t *testing.T) {
 				Interval:  settings.Global.Interval,
 				RecvMail:  settings.Global.RecvMail,
 				Selection: "#main-content",
+				// NOTE: Added since reflect.DeepEqual differentiates between nil
+				// maps and empty (but initialized) maps.
+				Header: map[string]string{},
 			},
 		},
 	}
 
 	pages, err := ReadPages("ini_test_pages.ini")
 	if err != nil {
-		t.Errorf("ReadPages: %s", err)
+		t.Fatal("ReadPages:", err)
 	}
-	/// Need to find a better way to compare slices.
-	/// Ugly solution
-	if len(expected) != len(pages) {
-		t.Errorf("output length (%d) != (%d) expected length", len(pages), len(expected))
+	// NOTE: Once again, reflect.DeepEqual comes to the rescue :)
+	if !reflect.DeepEqual(pages, expected) {
+		t.Fatalf("pages differ: expected %v, got %v", expected, pages)
 	}
-	for _, expectedP := range expected {
-		pageFound := false
-		for _, p := range pages {
-			// If error message is only page not found, two or more pages have
-			// only different URLs.
-			if *p.ReqUrl != *expectedP.ReqUrl {
-				continue
-			}
-
-			// Compare all fields that have defined equality.
-			switch {
-			case p.Settings.Interval != expectedP.Settings.Interval:
-				t.Errorf("interval output %v != %v", p.Settings.Interval, expectedP.Settings.Interval)
-			case p.Settings.Negexp != expectedP.Settings.Negexp:
-				t.Errorf("Negexp output %v != %v", p.Settings.Negexp, expectedP.Settings.Negexp)
-			case p.Settings.Regexp != expectedP.Settings.Regexp:
-				t.Errorf("Regexp output %v != %v", p.Settings.Regexp, expectedP.Settings.Regexp)
-			case p.Settings.RecvMail != expectedP.Settings.RecvMail:
-				t.Errorf("RecvMail output %v != %v", p.Settings.RecvMail, expectedP.Settings.RecvMail)
-			case p.Settings.Selection != expectedP.Settings.Selection:
-				t.Errorf("Selection output %v != %v", p.Settings.Selection, expectedP.Settings.Selection)
-			case p.Settings.Threshold != expectedP.Settings.Threshold:
-				t.Errorf("Threshold output %v != %v", p.Settings.Threshold, expectedP.Settings.Threshold)
-			case !isStripFuncsEqual(p.Settings.StripFuncs, expectedP.Settings.StripFuncs):
-				t.Errorf("StripFuncs output %v != %v", p.Settings.StripFuncs, expectedP.Settings.StripFuncs)
-			case !isHeadersEqual(p.Settings.Header, expectedP.Settings.Header):
-				t.Errorf("Header output %v != %v", p.Settings.Header, expectedP.Settings.Header)
-			default:
-				pageFound = true
-				break
-			}
-		}
-		if !pageFound {
-			t.Errorf("Page not found")
-		}
-	}
-}
-
-// Temporary equality function for string slices.
-func isStripFuncsEqual(strip, expected []string) bool {
-	if len(strip) != len(expected) {
-		return false
-	}
-	for _, stripFunc := range strip {
-		funcFound := false
-		for _, expectedStripFunc := range expected {
-			if expectedStripFunc == stripFunc {
-				funcFound = true
-				break
-			}
-		}
-		if !funcFound {
-			return false
-		}
-	}
-	return true
-}
-
-// Temporary equality function for map[string]string.
-func isHeadersEqual(headers, expected map[string]string) bool {
-	if len(expected) != len(headers) {
-		return false
-	}
-	for key, val := range headers {
-		if expected[key] != val {
-			return false
-		}
-	}
-	return true
 }

@@ -60,7 +60,7 @@ func TestNumber(t *testing.T) {
 func TestAttrs(t *testing.T) {
 	node1, err := html.Parse(strings.NewReader(`<html><head><title>Attr test</title></head><body><b style="color: #f00;">I am red!</b></body></html>`))
 	if err != nil {
-		t.Errorf("error: %s", err)
+		t.Fatal("error:", err)
 	}
 
 	var golden = []struct {
@@ -101,7 +101,7 @@ func TestAttrs(t *testing.T) {
 func TestHTML(t *testing.T) {
 	node1, err := html.Parse(strings.NewReader(`<html><head><title>HTML test</title></head><body><b style="color: #f00;">I am red!</b></body></html>`))
 	if err != nil {
-		t.Errorf("error: %s", err)
+		t.Fatal("error:", err)
 	}
 
 	var golden = []struct {
